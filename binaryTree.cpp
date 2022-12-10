@@ -12,7 +12,7 @@ class Node {
 
         static std::shared_ptr<Node> createNode() {
             // recursive creation of bt
-            // makes root, then left child then right child 
+            // makes root, then left child then right child
             std::cout << "Insert INT data for node: ";
             std::string x;
             getline(std::cin, x);
@@ -29,81 +29,92 @@ class Node {
         Node(int data): data(data), left(nullptr), right(nullptr) {}
 };
 
-
 // inorder: left root right
-void printInorder(Node *node) {
-    if (node -> left == nullptr) {
-        std::cout << node -> data << std::endl;
+void printInorder(Node *node)
+{
+    if (node->left.get() == nullptr && node->right.get() == nullptr)
+    {
+        std::cout << " " << node->data << " ";
         return;
     }
-    printInorder((node -> left).get());
-    std::cout << node -> data << std::endl;
-    printInorder((node -> right).get());
+
+    if (node->left.get()) {
+        printInorder((node->left).get());
+    }
+    std::cout << node->data;
+
+    if (node->right.get()) {
+        printInorder((node->right).get());
+    }
+
 }
 
 // printPreorder: root left right
 void printPreorder(Node *node) {
-    std::cout << node -> data << std::endl;
-    if (node -> left == nullptr) {
+
+    std::cout << " " << node->data << " ";
+
+    if (node -> left.get() == nullptr && node -> right.get() == nullptr) {
         return;
     }
-    printPreorder((node -> left).get());
-    printPreorder((node -> right).get());
+
+    if (node -> left.get() != nullptr) {
+        printPreorder((node -> left).get());
+    }
+
+    if (node -> right.get() != nullptr) {
+        printPreorder((node -> right).get());
+    }
+
 }
 
 // printPostorder: left right root
 void printPostorder(Node *node) {
     if (node -> left == nullptr) {
-        std::cout << node -> data << std::endl;
+        std::cout << " " << node->data << " ";
         return;
     }
-    printPostorder((node -> left).get());
-    printPostorder((node -> right).get());
-    std::cout << node -> data << std::endl;
+    if (node -> left.get() != nullptr) {
+        printPostorder((node -> left).get());
+    }
+
+    if (node -> right.get() != nullptr) {
+        printPostorder((node -> right).get());
+    }
+
+    std::cout << node -> data;
 }
 
 void createTreeAndPrint() {
     Node root = Node(25);
 
-    Node a1 = Node(15);
-    Node a2 = Node(50);
+    root.left = std::make_shared<Node> (15);
+    root.right = std::make_shared<Node> (50);
 
-    root.left = std::make_shared<Node> (a1); //std::make_shared<Node> (15)
-    root.right = std::make_shared<Node> (a2);
+    root.left.get() -> left = std::make_shared<Node>(10);
+    root.left.get() -> right = std::make_shared<Node>(22);
 
-    Node b1 = Node(10);
-    Node b2 = Node(22);
-    a1.left = std::make_shared<Node>(b1);
-    a1.right = std::make_shared<Node>(b2); 
+    root.right.get() -> left = std::make_shared<Node>(35);
+    root.right.get() -> right = std::make_shared<Node>(70);
 
-    Node b3 = Node(35);
-    Node b4 = Node(70);
-    a2.left = std::make_shared<Node>(b3);
-    a2.right = std::make_shared<Node>(b4); 
+    root.left.get() -> left.get() ->left = std::make_shared<Node>(4);
+    root.left.get() -> left.get() ->right = std::make_shared<Node>(12);
 
-    Node c1 = Node(4);
-    Node c2 = Node(12);
-    b1.left = std::make_shared<Node>(c1);
-    b1.right = std::make_shared<Node>(c2);
+    root.left.get() -> right.get() ->left = std::make_shared<Node>(18);
+    root.left.get() -> right.get() ->right = std::make_shared<Node>(24);
 
-    Node c3 = Node(18);
-    Node c4 = Node(24);
-    b2.left = std::make_shared<Node>(c3);
-    b2.right = std::make_shared<Node>(c4);
+    root.right.get() -> left.get() ->left = std::make_shared<Node>(31);
+    root.right.get() -> left.get() ->right = std::make_shared<Node>(44);
 
-    Node c5 = Node(31);
-    Node c6 = Node(44);
-    b3.left = std::make_shared<Node>(c5);
-    b3.right = std::make_shared<Node>(c6);
-
-    Node c7 = Node(66); 
-    Node c8 = Node(90);
-    b4.left = std::make_shared<Node>(c7);
-    b4.right = std::make_shared<Node>(c8);
+    root.right.get() -> right.get() ->left = std::make_shared<Node>(66);
+    root.right.get() -> right.get() ->right = std::make_shared<Node>(90);
 
     printInorder(&root);
+    std::cout << std::endl;
     printPreorder(&root);
+    std::cout << std::endl;
     printPostorder(&root);
+    std::cout << std::endl;
 }
 
 
@@ -115,3 +126,12 @@ int main(int argc, char **argv) {
         createTreeAndPrint();
     }
 }
+
+/*
+Out:
+ 4 10 12 15 18 22 24 25 31 35 44 50 66 70 90
+ 25  15  10  4  12  22  18  24  50  35  31  44  70  66  90
+ 4  12 10 18  24 22 15 31 44 35 66  90 70 50 25
+
+ tree taken from: https://www.geeksforgeeks.org/tree-traversals-inorder-preorder-and-postorder/
+*/
