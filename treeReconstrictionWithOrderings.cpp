@@ -5,6 +5,10 @@
 
 // g++ -std=c++14 -o  bt_ordering.out treeReconstrictionWithOrderings.cpp
 
+/* TODO: in both
+buildTreeFromInOrderAndPreOrder factor out the start_idx argumennt (bring it inside the function to avoid input-errors)
+buildTreeFromInOrderAndPostOrder factor out the start_idx argumennt (bring it inside the function to avoid input-errors)
+*/
 class Node {
     public:
         std::unique_ptr<Node> left, right;
@@ -68,12 +72,11 @@ std::unique_ptr<Node> buildTreeFromInOrderAndPreOrder(int& idx, std::vector<int>
     return n;
 }
 
-std::unique_ptr<Node> buildTreeFromInOrderAndPostOrder(int& idx, std::vector<int> inOrderTraversal, std::vector<int> preOrderTraversal) {
+std::unique_ptr<Node> buildTreeFromInOrderAndPostOrder(int& idx, std::vector<int> inOrderTraversal, std::vector<int> postOrderTraversal) {
     // keys must be unique
 
-    int current_node_data = preOrderTraversal[idx];
+    int current_node_data = postOrderTraversal[idx];
     std::unique_ptr<Node> n = std::make_unique<Node>(current_node_data);
-    // preOrderTraversal.erase(std::remove(preOrderTraversal.begin(), preOrderTraversal.end(), current_node_data), preOrderTraversal.end());
 
     if (inOrderTraversal.size() == 1) {
         idx--;
@@ -97,10 +100,10 @@ std::unique_ptr<Node> buildTreeFromInOrderAndPostOrder(int& idx, std::vector<int
 
     idx--;
     if (right_nodes.size() != 0){
-        n.get() -> right = buildTreeFromInOrderAndPostOrder(idx, right_nodes, preOrderTraversal);
+        n.get() -> right = buildTreeFromInOrderAndPostOrder(idx, right_nodes, postOrderTraversal);
     }
     if (left_nodes.size() != 0){
-        n.get() -> left = buildTreeFromInOrderAndPostOrder(idx, left_nodes, preOrderTraversal);
+        n.get() -> left = buildTreeFromInOrderAndPostOrder(idx, left_nodes, postOrderTraversal);
     }
 
     return n;
@@ -119,7 +122,7 @@ void printInorder(Node *node)
     if (node->left.get()) {
         printInorder((node->left).get());
     }
-    std::cout << node->data;
+    std::cout << " " << node->data << " ";
 
     if (node->right.get()) {
         printInorder((node->right).get());
@@ -153,19 +156,20 @@ int main() {
     std::vector<int> postOrderTraversalB = {9,1,2,12,7,5,3,11,4,8};
     std::vector<int> inOrderTraversalB = {9,5,1,7,2,12,8,4,3,11}; // Left Right Root
 
+
     int start_idx = 0;
     std::unique_ptr<Node> rootA = buildTreeFromInOrderAndPreOrder(start_idx, inOrderTraversalA, preOrderTraversalA);
-    std::cout << "InorderA:\n";
+    std::cout << "InorderA from inorder & preorder:\n";
     printInorder(rootA.get());
     std::cout << std::endl;
 
     start_idx = postOrderTraversalB.size() -1;
     std::unique_ptr<Node> rootB = buildTreeFromInOrderAndPostOrder(start_idx, inOrderTraversalB, postOrderTraversalB);
-    std::cout << "InorderB:\n";
+    std::cout << "InorderB from inorder & postorder:\n";
     printInorder(rootB.get());
     std::cout << std::endl;
 
-    std::cout << "PreOrderB:\n";
+    std::cout << "print PreOrderB:\n";
     printPreorder(rootB.get()); // correct { 8 , 5 , 9 , 7 , 1 , 12 , 2 , 4 , 11 , 3 }
     std::cout << std::endl;
 
@@ -173,9 +177,33 @@ int main() {
     start_idx = 0;
     std::vector<int> preOrderTraversalB = { 8 , 5 , 9 , 7 , 1 , 12 , 2 , 4 , 11 , 3 };
     std::unique_ptr<Node> rootBB = buildTreeFromInOrderAndPreOrder(start_idx, inOrderTraversalB, preOrderTraversalB);
-    std::cout << "InorderB:\n";
+    std::cout << "InorderB from inorder & preorder:\n";
     printInorder(rootBB.get());
     std::cout << std::endl;
+
+    /* BST: binary search tree from inorder & preorder */
+    std::cout <<"Build a binary search tree from preording only" << std::endl;
+    std::vector<int> preOrderBST = {20, 16, 5, 18, 17, 19, 60, 85, 70};
+    std::vector<int> inOrderBST;
+    std::copy(preOrderBST.begin(), preOrderBST.end(), std::back_inserter(inOrderBST));
+    std::sort(inOrderBST.begin(), inOrderBST.end());
+    start_idx = 0;
+    std::unique_ptr<Node> rootBST_fromPreOrder = buildTreeFromInOrderAndPreOrder(start_idx, inOrderBST, preOrderBST);
+    std::cout << "InorderBST from preordering:\n";
+    printInorder(rootBST_fromPreOrder.get());
+    std::cout << std::endl;
+
+
+    /* BST: binary search tree from inorder & postorder */
+    std::cout <<"Build a binary search tree from postordering only" << std::endl;
+    std::vector<int> postOrderBST = {5, 17, 19, 18, 16, 70, 85, 60, 20};
+    start_idx = postOrderBST.size() -1;
+    std::unique_ptr<Node> rootBST_fromPostOrder = buildTreeFromInOrderAndPostOrder(start_idx, inOrderBST, postOrderBST);
+    std::cout << "InorderBST from postordering:\n";
+    printInorder(rootBST_fromPostOrder.get());
+    std::cout << std::endl;
+
+
 
 
 
