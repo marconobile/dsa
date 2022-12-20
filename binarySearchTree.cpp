@@ -10,28 +10,27 @@
 class Node {
     public:
         int data;
-        std::unique_ptr<Node> left;
-        std::unique_ptr<Node> right;
+        std::shared_ptr<Node> left;
+        std::shared_ptr<Node> right;
 
         Node(int data): data(data), left(nullptr), right(nullptr) {};
 };
 
-void insertNode(Node* node, int value) {
-
-    if (value < node -> data) {
-        if (node -> left == nullptr) {
-            node -> left = std::make_unique<Node> (value);
-        } else {
-            insertNode(node -> left.get(), value);
-        }
-    } else if (value > node -> data) {
-        if (node -> right == nullptr) {
-            node -> right = std::make_unique<Node> (value);
-        } else {
-            insertNode(node -> right.get(), value);
-        }
-    }
-}
+// void insertNode(Node* node, int value) { // insert version that works with left, right as unique ptrs
+//     if (value < node -> data) {
+//         if (node -> left == nullptr) {
+//             node -> left = std::make_unique<Node> (value);
+//         } else {
+//             insertNode(node -> left.get(), value);
+//         }
+//     } else if (value > node -> data) {
+//         if (node -> right == nullptr) {
+//             node -> right = std::make_unique<Node> (value);
+//         } else {
+//             insertNode(node -> right.get(), value);
+//         }
+//     }
+// }
 
 // inorder: left root right
 void printInorder(Node *node)
@@ -52,70 +51,31 @@ void printInorder(Node *node)
     }
 }
 
-
-//*************************************************************
-void deleteNodeWithNoChild(Node *node) {
-
-}
-
-void deleteNodeWithOnceChild(Node* node) {
-
-}
-
-void deleteNodeWithChildren_predecessor(Node* node) {
-    // using predecessor
-}
-
-void deleteNodeWithChildren_successor(Node* node) {
-    // using successor
-}
-
-void deleteNode(Node* node , int val) {
-    if(node -> left.get() == nullptr && node -> right.get() == nullptr) {
-        deleteNodeWithNoChild(node);
-        return;
-    } else if (node -> left.get() != nullptr || node -> right.get() == nullptr) {
-        deleteNodeWithOnceChild(node);
-        return;
-    } else if (node -> left.get() != nullptr || node -> right.get() == nullptr) {
-        deleteNodeWithOnceChild(node);
-        return;
-    } else if (node -> left.get() != nullptr || node -> right.get() != nullptr) {
-        deleteNodeWithChildren_predecessor(node); //deleteNodeWithChildren_successor(node);
-        return;
+std::shared_ptr<Node> insert_v2(int value, std::shared_ptr<Node> node) {
+    if (node == nullptr) { // base case: if we fall off the tree, then the node needs to be created
+        node = std::make_shared<Node>(value);
+    } else if (value < node->data) { // binary search logic
+        node -> left = insert_v2(value, node -> left); // recursively return the in-place modified sub-tree
+    } else if (value > node->data) { // binary search logic
+        node -> right = insert_v2(value, node -> right); // recursively return the in-place modified sub-tree
     }
+    return node;
 }
 
-void traverseToDeleteNode(Node* node , int val) {
 
-    if (node -> data == val) {
-        deleteNode(node, val);
-        return;
-    }
-
-    if(node -> left.get() == nullptr && node -> right.get() == nullptr) {
-        return;
-    }
-
-    if(node -> left.get() != nullptr) {
-        traverseToDeleteNode(node -> left.get(), val);
-    }
-
-    if(node -> right.get() != nullptr) {
-        traverseToDeleteNode(node -> right.get(), val);
-    }
-
-}
 
 int main() {
     std::vector<int> values_to_insert = {11, 6, 8, 19, 4, 10, 5, 17, 43, 49, 31};
+    std::shared_ptr<Node> root = nullptr;
 
-    Node root = Node(values_to_insert[0]);
+    for (int i = 0; i <= values_to_insert.size()-1; i++)
+        root = insert_v2(values_to_insert[i], root);
 
-    for (int i = 1; i <= values_to_insert.size()-1; i++){
-        insertNode(&root, values_to_insert[i]);
-    }
+    printInorder(root.get());
+    std::cout << std::endl;
 
-    printInorder(&root);
+    // deleteNode(&root, 5);
+    // printInorder(&root);
+    // std::cout << std::endl;
 
 }
