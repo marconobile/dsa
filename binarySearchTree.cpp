@@ -16,21 +16,54 @@ class Node {
         Node(int data): data(data), left(nullptr), right(nullptr) {};
 };
 
-// void insertNode(Node* node, int value) { // insert version that works with left, right as unique ptrs
-//     if (value < node -> data) {
-//         if (node -> left == nullptr) {
-//             node -> left = std::make_unique<Node> (value);
-//         } else {
-//             insertNode(node -> left.get(), value);
-//         }
-//     } else if (value > node -> data) {
-//         if (node -> right == nullptr) {
-//             node -> right = std::make_unique<Node> (value);
-//         } else {
-//             insertNode(node -> right.get(), value);
-//         }
-//     }
-// }
+std::shared_ptr<Node> insert(int value, std::shared_ptr<Node> root) {
+    if (root == nullptr) { // base case: if we fall off the tree, then the node needs to be created
+        root = std::make_shared<Node>(value);
+    } else if (value < root->data) { // recursive case: binary search logic
+        root -> left = insert(value, root -> left); // recursively return the in-place modified sub-tree
+    } else if (value > root->data) {
+        root -> right = insert(value, root -> right);
+    }
+    return root;
+}
+
+
+// find biggest node in left-sub-tree (i.e. the right-most)
+std::shared_ptr<Node> findReplacement(std::shared_ptr<Node> node) {
+    std::shared_ptr<Node> r = node -> left;
+    while (r -> right != nullptr) {
+        r = r ->right;
+    }
+    return r;
+
+}
+
+std::shared_ptr<Node> deleteNode(int value, std::shared_ptr<Node> root) {
+    if (root.get() == nullptr) {
+        throw;
+    } else {
+        if (root -> data < value) {
+            root -> right = deleteNode(value, root -> right);
+        } else if (root -> data > value) {
+            root -> left = deleteNode(value, root -> left);
+        } else if (root -> left == nullptr || root -> right == nullptr) {
+            if (root -> left == nullptr) {
+                root = root -> right;
+            } else {
+                root = root -> left;
+            }
+        } else {
+            std::shared_ptr<Node> r = findReplacement(root);
+            root -> data = r ->data;
+            root -> left = deleteNode(r -> data, root -> left);
+        }
+    }
+    return root;
+}
+
+
+
+
 
 // inorder: left root right
 void printInorder(Node *node)
@@ -51,31 +84,30 @@ void printInorder(Node *node)
     }
 }
 
-std::shared_ptr<Node> insert_v2(int value, std::shared_ptr<Node> node) {
-    if (node == nullptr) { // base case: if we fall off the tree, then the node needs to be created
-        node = std::make_shared<Node>(value);
-    } else if (value < node->data) { // binary search logic
-        node -> left = insert_v2(value, node -> left); // recursively return the in-place modified sub-tree
-    } else if (value > node->data) { // binary search logic
-        node -> right = insert_v2(value, node -> right); // recursively return the in-place modified sub-tree
-    }
-    return node;
-}
-
-
 
 int main() {
     std::vector<int> values_to_insert = {11, 6, 8, 19, 4, 10, 5, 17, 43, 49, 31};
     std::shared_ptr<Node> root = nullptr;
 
     for (int i = 0; i <= values_to_insert.size()-1; i++)
-        root = insert_v2(values_to_insert[i], root);
+        root = insert(values_to_insert[i], root);
 
     printInorder(root.get());
     std::cout << std::endl;
 
-    // deleteNode(&root, 5);
-    // printInorder(&root);
-    // std::cout << std::endl;
+    std::cout << "Without 5\n";
+    deleteNode(5, root);
+    printInorder(root.get());
+    std::cout << std::endl;
+
+    std::cout << "Without 8\n";
+    deleteNode(8, root);
+    printInorder(root.get());
+    std::cout << std::endl;
+
+    std::cout << "Without 43\n";
+    deleteNode(43, root);
+    printInorder(root.get());
+    std::cout << std::endl;
 
 }
