@@ -32,38 +32,44 @@ std::shared_ptr<Node> insert(int value, std::shared_ptr<Node> root) {
 std::shared_ptr<Node> findReplacement(std::shared_ptr<Node> node) {
     std::shared_ptr<Node> r = node -> left;
     while (r -> right != nullptr) {
-        r = r ->right;
+        r = r -> right;
     }
     return r;
-
 }
 
-std::shared_ptr<Node> deleteNode(int value, std::shared_ptr<Node> root) {
-    if (root.get() == nullptr) {
+// find smallest node in its right-sub-tree (i.e. the left-most node from root)
+std::shared_ptr<Node> findReplacement2(std::shared_ptr<Node> node) {
+    std::shared_ptr<Node> r = node -> right;
+    while (r -> left != nullptr) {
+        r = r -> left;
+    }
+    return r;
+}
+
+std::shared_ptr<Node> deleteNode(int value, std::shared_ptr<Node> root) { // root of tree/recursive-subtree
+    if (root.get() == nullptr) { // if k not found then throw
         throw;
-    } else {
+    } else { // recursively delete in subtree that will be modified in-place
         if (root -> data < value) {
             root -> right = deleteNode(value, root -> right);
         } else if (root -> data > value) {
             root -> left = deleteNode(value, root -> left);
-        } else if (root -> left == nullptr || root -> right == nullptr) {
-            if (root -> left == nullptr) {
-                root = root -> right;
+        } else if (root -> left == nullptr || root -> right == nullptr) { // node found! (root now has to be deleted)
+            if (root -> left == nullptr) { // then if it has 1 or no child
+                root = root -> right; // replace the node that has to be deleted with the appropriate child
             } else {
                 root = root -> left;
             }
-        } else {
-            std::shared_ptr<Node> r = findReplacement(root);
+        } else { // if it has 2 children
+            std::shared_ptr<Node> r = findReplacement(root); // goal: replace the node to be deleted with either:
+            // biggest node in its left-sub-tree (i.e. the right-most node from root)
+            // smallest node in its right-sub-tree (i.e. the left-most node from root)
             root -> data = r ->data;
-            root -> left = deleteNode(r -> data, root -> left);
+            root -> left = deleteNode(r -> data, root -> left); // once replaced we delete that leaf
         }
     }
     return root;
 }
-
-
-
-
 
 // inorder: left root right
 void printInorder(Node *node)
@@ -109,5 +115,4 @@ int main() {
     deleteNode(43, root);
     printInorder(root.get());
     std::cout << std::endl;
-
 }
