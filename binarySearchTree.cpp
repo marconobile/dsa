@@ -27,7 +27,6 @@ std::shared_ptr<Node> insert(int value, std::shared_ptr<Node> root) {
     return root;
 }
 
-
 // find biggest node in left-sub-tree (i.e. the right-most)
 std::shared_ptr<Node> findReplacement(std::shared_ptr<Node> node) {
     std::shared_ptr<Node> r = node -> left;
@@ -48,7 +47,7 @@ std::shared_ptr<Node> findReplacement2(std::shared_ptr<Node> node) {
 
 std::shared_ptr<Node> deleteNode(int value, std::shared_ptr<Node> root) { // root of tree/recursive-subtree
     if (root.get() == nullptr) { // if k not found then throw
-        throw;
+        throw; // if we fall of the tree then key is not foud
     } else { // recursively delete in subtree that will be modified in-place
         if (root -> data < value) {
             root -> right = deleteNode(value, root -> right);
@@ -65,7 +64,7 @@ std::shared_ptr<Node> deleteNode(int value, std::shared_ptr<Node> root) { // roo
             // biggest node in its left-sub-tree (i.e. the right-most node from root)
             // smallest node in its right-sub-tree (i.e. the left-most node from root)
             root -> data = r ->data;
-            root -> left = deleteNode(r -> data, root -> left); // once replaced we delete that leaf
+            root -> left = deleteNode(r -> data, root -> left); // once replaced we call delete in that subtree
         }
     }
     return root;
