@@ -12,7 +12,7 @@ class avlNode {
     public:
         int data;
         int height;
-        // int depth;©
+        // int depth;
         avlNode *right, *left;
 
     avlNode(int value): data(value), height(0), right(nullptr), left(nullptr) {}
