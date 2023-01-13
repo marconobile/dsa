@@ -1,14 +1,10 @@
 #include <iostream>
 #include <string>
 #include <algorithm> // for std::min
-// #include <memory>
-// #include <cstddef>
-// #include <vector>
+#include <vector>
 
 // g++ -std=c++17 -o  aat.out AATrees.cpp
-// leaks --atExit -- ./avl.out
-
-class Nil;
+// leaks --atExit -- ./aat.out
 
 class AANode {
     public:
@@ -40,7 +36,7 @@ AANode* split(AANode *p) {
         return p;
     }
 
-    if (p->right->right->level == p->level) { // check if (p ->level == p->right->level) is useless since if p->right was red, then we need to split iff p->right->right->level is red
+    if (p->right->right->level == p->level) { // check if (p ->level == p->right->level) is useless since if p->right is red, then we need to split iff p->right->right->level is red
         AANode* q = p->right;
         p -> right = q -> left;
         q -> left = p;
@@ -125,17 +121,47 @@ AANode* deleteNode(int value, AANode* p) {
     return fixAfterDelete(p);
 }
 
-// TODO:
-// insertion list in main
-// why three skews
-// comment & debug step by step code
-// test case
-// delete - free mem func
-// print inorder func
+void deleteTree(AANode *node) {
+    // follow post-order traversal criteria L-Ri-Ro to delete
+    if (node -> left == &nil && node -> right == &nil) {
+        delete node;
+        return;
+    }
 
-int main() {
+    if (node -> left != &nil) {
+        deleteTree(node ->left);
+    }
 
+    if (node -> right != &nil) {
+        deleteTree(node ->right);
+    }
 
+    delete node;
+    return;
+}
+
+void printInorderWithLevel(AANode *node)
+{
+    if (node->left == &nil && node->right == &nil)
+    {
+        std::cout << " " << node->data << " ";
+        std::cout << "(lvl: " << node -> level << ") ";
+        return;
+    }
+
+    if (node->left != &nil) {
+        printInorderWithLevel((node->left));
+    }
+
+    std::cout << " " << node->data << " ";
+    std::cout << "(lvl: " << node -> level << ") ";
+
+    if (node->right != &nil ) {
+        printInorderWithLevel((node->right));
+    }
+}
+
+void testNil() {
     AANode* root = new AANode(0, &nil, &nil);
 
     if (root == &nil) {
@@ -151,6 +177,31 @@ int main() {
     }
 
     delete root;
+
+}
+
+// TODO:
+// test delete
+// why three skews
+// comment & debug step by step code
+
+int main() {
+
+    std::vector<int> values_to_insert = {4,2,1,3,8,12,5,7,9,14};
+    AANode* root = new AANode(0, &nil, &nil);
+
+    for(int i: values_to_insert) {
+        root = insert(i, root);
+    }
+
+    printInorderWithLevel(root);
+    std::cout << std::endl;
+
+    root = insert(6, root);
+    printInorderWithLevel(root);
+    std::cout << std::endl;
+
+    deleteTree(root);
 
 }
 
