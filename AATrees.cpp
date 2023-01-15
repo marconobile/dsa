@@ -180,15 +180,10 @@ void testNil() {
 
 }
 
-// TODO:
-// test delete
-// why three skews
-// comment & debug step by step code
-
 int main() {
 
-    std::vector<int> values_to_insert = {4,2,1,3,8,12,5,7,9,14};
-    AANode* root = new AANode(0, &nil, &nil);
+    std::vector<int> values_to_insert = {2,1,3,8,12,5,7,9,14};
+    AANode* root = new AANode(4, &nil, &nil);
 
     for(int i: values_to_insert) {
         root = insert(i, root);
@@ -198,6 +193,10 @@ int main() {
     std::cout << std::endl;
 
     root = insert(6, root);
+    printInorderWithLevel(root);
+    std::cout << std::endl;
+
+    root = deleteNode(5, root);
     printInorderWithLevel(root);
     std::cout << std::endl;
 
