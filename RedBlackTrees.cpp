@@ -12,10 +12,10 @@ class RBNode {
         int data;
         RBNode* right, *left, *parent;
         Color color = RBNode::Color::red;
+        bool doubleBlack;
 
-        RBNode(int data, RBNode* right, RBNode* left, RBNode* parent, Color color): data(data), right(right), left(left), parent(parent), color(color) {}
-        RBNode(): data(0), right(this), left(this), parent(this), color(RBNode::Color::black) {}
-
+        RBNode(int data, RBNode* right, RBNode* left, RBNode* parent, Color color): data(data), right(right), left(left), parent(parent), color(color), doubleBlack(false) {}
+        RBNode(): data(0), right(this), left(this), parent(this), color(RBNode::Color::black), doubleBlack(false) {}
 };
 
 RBNode nil = RBNode();
@@ -217,6 +217,67 @@ RBNode* insert(int value, RBNode* node, RBNode* parent) {
     return rotate_and_swap_colors(check(node));
 }
 
+// largest node in the left subtre (i.e. its rightmost node)
+RBNode* findReplacementInLeftSubtree(RBNode* node) {
+    RBNode* r = node -> left;
+    while (r -> right != nullptr) {
+        r = r->right;
+    }
+    return r;
+}
+
+// smallest node in the right subtree (i.e. its leftmost node)
+RBNode* findReplacementInRightSubtree(RBNode* node) {
+    RBNode* r = node -> right;
+    while (r -> left != nullptr) {
+        r = r->left;
+    }
+    return r;
+}
+
+RBNode* handle_cases(RBNode* node){
+    if (node -> doubleBlack == false)
+        return node;
+
+    // TODO
+
+
+
+}
+
+RBNode* deleteNode(int value, RBNode* node) {
+
+    if (value < node -> data) {
+        node -> left = deleteNode(value, node -> left);
+    } else if (value > node ->data) {
+        node -> right = deleteNode(value, node -> right);
+    }  else { // node found
+        if (node -> left != &nil || node -> right != &nil){
+            RBNode* r;
+            if (node -> left != &nil) {
+                r = findReplacementInLeftSubtree(node);
+                node -> data = r -> data;
+                node -> left = deleteNode(r -> data, node -> left);
+            } else if(node -> right != &nil){
+                r = findReplacementInRightSubtree(node);
+                node -> data = r -> data;
+                node -> right = deleteNode(r -> data, node -> right);
+            }
+        }
+        if (node ->color == RBNode::Color::red) {
+            node = &nil;
+            return node;
+        }
+        if (node ->color == RBNode::Color::black) {
+            node->doubleBlack == true;
+            handle_cases(node);
+            node = &nil;
+            return node;
+        }
+    }
+    return handle_cases(node);
+}
+
 void deleteTree(RBNode *node) {
     // follow post-order traversal criteria L-Ri-Ro to delete
     if (node -> left == &nil && node -> right == &nil) {
@@ -236,9 +297,15 @@ void deleteTree(RBNode *node) {
     return;
 }
 
+
+// TODO
+// 1) refactor
+// 2) insert tests
+// 3) nil parents
+
 int main(){
     std::vector<int> values_to_insert = {10, 18, 7, 15, 16, 30, 25, 40, 60, 2, 1, 70};
-    RBNode* root = nullptr; //new RBNode(4, &nil, &nil);
+    RBNode* root = nullptr;
 
     for(int i: values_to_insert) {
         root = insert(i, root, nullptr);
